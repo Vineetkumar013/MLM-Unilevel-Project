@@ -1,7 +1,6 @@
 const Coupon = require("../Models/CouponModel");
 const validateMongoDbId = require("../utils/validateMongodbId");
 
-
 const createCoupon = async (req, res) => {
   try {
     const newCoupon = await Coupon.create(req.body);
@@ -50,8 +49,6 @@ const getCoupon = async (req, res) => {
     throw new Error(error);
   }
 };
-
-
 module.exports = {
   createCoupon,
   getAllCoupons,

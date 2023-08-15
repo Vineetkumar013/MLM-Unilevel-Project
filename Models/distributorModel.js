@@ -1,6 +1,6 @@
-const mongoose = require("mongoose"); // Erase if already required
+const mongoose = require("mongoose"); 
 
-// Declare the Schema of the Mongo model
+
 var userSchema = new mongoose.Schema(
   {
     name: {
@@ -18,11 +18,14 @@ var userSchema = new mongoose.Schema(
     mobile: {
       type: String,
       required: true,
-      // unique: true,
+      // unique: true, 
     },
     password: {
       type: String,
       required: true,
+    },
+    otp: {
+      type: String,
     },
     userType: {
       type: String,
@@ -40,24 +43,51 @@ var userSchema = new mongoose.Schema(
       default: 0
     }, // Total sales made by the distributor
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
-        cart: {
+    cart: {
       type: Array,
       default: [],
     },
     active: {
-      type: Boolean, default: true
+      type: Boolean, default: false
     }, // Flag indicating if the distributor is active
     parentId: {
-      type: mongoose.Schema.Types.ObjectId, ref: 'User'
-    }, // Reference to the parent distributor
-    teamMembers: [{
-      type: mongoose.Schema.Types.ObjectId, ref: 'User'
+      type: mongoose.Schema.Types.ObjectId, ref: 'Distributor'
+    }, 
+    level: {
+      type: Number,
+      default: 1
+    },
+    leader: {
+      type: Boolean,
+      default: false,
+    },
+    Kutumbh: [{
+      type: mongoose.Schema.Types.ObjectId, ref: 'subDistributor'
     }]
   },
   {
     timestamps: true,
   }
 );
+
+
+userSchema.methods.getDirectChildren = async function () {
+  const children = await this.model("User").find({ parentId: this._id });
+  return children;
+};
+
+
+userSchema.methods.getLeafNodes = async function () {
+  const leafNodes = await this.model("User").find({ parentId: this._id, Kutumbh: [] });
+  return leafNodes;
+};
+
+
+userSchema.methods.getSiblings = async function () {
+  const siblings = await this.model("User").find({ parentId: this.parentId, _id: { $ne: this._id } });
+  return siblings;
+};
+
 
 module.exports = mongoose.model("User", userSchema);
 
